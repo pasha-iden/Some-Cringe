@@ -31,8 +31,4 @@ def accepting (message):
     markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
     bot.send_message(message.chat.id, 'Книга добавлена', reply_markup=markup)
 
-# @bot.callback_query_handler(func = lambda callback:True)
-# def watch (callback):
-
-
 bot.infinity_polling()

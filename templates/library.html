@@ -6,13 +6,18 @@
     <title>Библиотека</title>
 </head>
 <body>
-    <div>
-        <span class="title">Библиотека</span>
+    <div class="title">
+        <span>Библиотека</span>
     </div>
-    <div>
-        <span class="underline">Здесь содержится список всей литературы, которую я когда-либо прочел, и которая оказала на меня влияние</span>
+    <div class="underline">
+        <span>Здесь содержится список всей литературы, которую я когда-либо прочел, и которая оказала на меня влияние</span>
     </div>
-Экономика Исследование о природе и причинах богатства народов Адам Смит
+
+    <div class="list">
+        {% for i in bookslistprint%}
+            <span>"{{ i.1 }}"</span> <br>
+            <span><b>{{ i.2 }}</b></span> <br> <br>
+        {% endfor %}
     </div>
 </body>
 </html>

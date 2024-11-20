@@ -1,28 +1,28 @@
 import psycopg2
 
-# a='Классическая художественная литература (зарубежная)'
-# try:
-#     connection = psycopg2.connect(
-#         host = "127.0.0.1",
-#         user = "postgres",
-#         password = "postgres",
-#         database = "postgres")
-#     connection.autocommit = True
-#
-#     with connection.cursor() as cursor:
-#         cursor.execute("""SELECT MAX(id) FROM books
-#         WHERE genre='%s'""" % (a))
-#         connection.commit()
-#         maxid=cursor.fetchone()
-#
-# except Exception as _ex:
-#     print ('Error:', _ex)
-# finally:
-#     if connection:
-#         connection.close()
+a='Экономика'
+try:
+    connection = psycopg2.connect(
+        host = "127.0.0.1",
+        user = "postgres",
+        password = "postgres",
+        database = "postgres")
+    connection.autocommit = True
+
+    with connection.cursor() as cursor:
+        cursor.execute("""SELECT MAX(id) FROM books
+        WHERE genre='%s'""" % (a))
+        connection.commit()
+        maxid=cursor.fetchone()
+
+except Exception as _ex:
+    print ('Error:', _ex)
+finally:
+    if connection:
+        connection.close()
 
 
-# print(maxid[0])
+print(maxid[0])
 
 # a=[3, 'a', 'b', 'c']
 #

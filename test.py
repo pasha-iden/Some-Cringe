@@ -10,10 +10,10 @@ try:
     connection.autocommit = True
 
     with connection.cursor() as cursor:
-        cursor.execute("""SELECT MAX(id) FROM books
-        WHERE genre='%s'""" % (a))
+        cursor.execute("""SELECT MAX(id) FROM books""")
+        # WHERE genre='%s'""" % (a))
         connection.commit()
-        maxid=cursor.fetchone()
+        maxid=cursor.fetchall()
 
 except Exception as _ex:
     print ('Error:', _ex)
@@ -22,9 +22,9 @@ finally:
         connection.close()
 
 
-print(maxid[0])
+print(maxid[0][0])
 
-# a=[3, 'a', 'b', 'c']
+# a=[3, 'a', 'b', 'c', 3]
 #
 # try:
 #     connection = psycopg2.connect(
@@ -35,8 +35,8 @@ print(maxid[0])
 #     connection.autocommit = True
 #
 #     with connection.cursor() as cursor:
-#         cursor.execute('''INSERT INTO books (id, bookname, author, genre)
-#         VALUES ('%s', '%s', '%s', '%s')''' % (a[0], a[1], a[2], a[3]))
+#         cursor.execute('''INSERT INTO books (id, bookname, author, genre, numingenre)
+#         VALUES ('%s', '%s', '%s', '%s', '%s')''' % (a[0], a[1], a[2], a[3], a[4]))
 #         connection.commit()
 #
 # except Exception as _ex:

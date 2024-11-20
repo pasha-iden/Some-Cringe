@@ -24,8 +24,7 @@ def dbaction(selection, query):
     finally:
         if connection:
             connection.close()
-            if selection==1:
-                return datas
+    return datas
 def genreslist():
     genres=dbaction(1, '''SELECT * FROM genres''')
     return genres
@@ -38,9 +37,17 @@ def chgenrelist(choisengenre):
     cgl=dbaction(1, query)
     return cgl
 
+def bookadding (infoaboutbook):
+    i = dbaction(1, '''SELECT MAX(id) FROM books''')
+    infoaboutbook[0]=i[0][0]+1
+    query='''INSERT INTO books VALUES (''' + str(infoaboutbook[0]) + ", '" + infoaboutbook[1] + "', '" + infoaboutbook[2] + "', '" + infoaboutbook[3] + "', '" + str(infoaboutbook[4]) + "')"
+    n=dbaction(0, query)
+def bookaddinginto (infoaboutbook):
+    pass
+
 
 genres = genreslist()
-bookforadd=[0, 0, 0, 0]
+bookforadd=[0, 0, 0, 0, 0]
 
 @bot.message_handler(commands=['start'])
 def start (message):
@@ -67,20 +74,22 @@ def buttoms (callback):
         markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
         bot.send_message(callback.message.chat.id, 'Список: \n\n' + bookslistprint, reply_markup=markup)
 
-    # Добавление книги 4: добавление жанра, указания места в списке книг жанра.
+    # Добавление книги 4: добавление жанра, запрос указания места в списке книг жанра.
     for i in range(len(genres)):
         if callback.data == genres[i][2]:
             bookforadd[3] = genres[i][1]
             choisengenrebooks=chgenrelist(bookforadd[3])
-            if choisengenrebooks==None:
+            if choisengenrebooks==[]:
+                bookforadd[4]=1
+                bookadding(bookforadd)
                 markup = types.InlineKeyboardMarkup()
                 markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
                 markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
-                bot.send_message(callback.message.chat.id, 'Книга добавлена: \n\n' + bookforadd[1] + '\n' + bookforadd[2] + '\n' + bookforadd[3] + '\n' + str(bookforadd[0]), reply_markup=markup)
+                bot.send_message(callback.message.chat.id, 'Книга добавлена: \n\n Книга: ' + bookforadd[1] + '\n Автор: ' + bookforadd[2] + '\n Жанр: ' + bookforadd[3] + '\n Место в списке: ' + str(bookforadd[4]), reply_markup=markup)
             else:
                 bl=str()
                 for l in range(len(choisengenrebooks)):
-                    bl=bl + str(choisengenrebooks[l][0]) + '. ' + choisengenrebooks[l][1] + '\n' + choisengenrebooks[l][2] + '\n\n'
+                    bl=bl + str(choisengenrebooks[l][4]) + '. ' + choisengenrebooks[l][1] + '\n' + choisengenrebooks[l][2] + '\n\n'
                 bot.send_message(callback.message.chat.id, 'На какое место поставить эту книгу: \n\n' + str(bl))
                 bot.register_next_step_handler(callback.message, accepting)
 
@@ -105,10 +114,13 @@ def genre_name (message):
 
 # Добавление книги 5: добавление места книги в списке книг жанра, отчет о завершении добавления. Выбор дальнейшего действия.
 def accepting (message):
-    bookforadd[0] = message.text
+    bookforadd[4] = message.text
+    if int(bookforadd[4]) > len(chgenrelist(bookforadd[3])):
+        bookadding(bookforadd)
+    # else
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
     markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
-    bot.send_message(message.chat.id, 'Книга добавлена: \n\n Книга: ' + bookforadd[1] + '\n Автор: ' + bookforadd[2] + '\n Жанр: ' + bookforadd[3] + '\n Место в списке: ' + str(bookforadd[0]), reply_markup=markup)
+    bot.send_message(message.chat.id, 'Книга добавлена: \n\n Книга: ' + bookforadd[1] + '\n Автор: ' + bookforadd[2] + '\n Жанр: ' + bookforadd[3] + '\n Место в списке: ' + str(bookforadd[4]), reply_markup=markup)
 
 bot.infinity_polling()

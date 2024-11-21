@@ -29,10 +29,18 @@ def genreslist():
     genres=dbaction(1, '''SELECT * FROM genres''')
     return genres
 def bookslist():
-    books=dbaction(1, '''SELECT * FROM books''')
+    books=''
+    gl=genreslist()
+    for i in range(len(gl)):
+        gbl=chgenrelist(gl[i][1])
+        if gbl>[]:
+            books=books + gl[i][1] + ': \n\n'
+            for l in range(len(gbl)):
+                books=books + gbl[l][1] + '\n' + gbl[l][2] + '\n\n'
+    # books=dbaction(1, '''SELECT * FROM books''')
     return books
 def chgenrelist(choisengenre):
-    query="SELECT * FROM books WHERE genre='" + choisengenre + "'"
+    query="SELECT * FROM books WHERE genre='" + choisengenre + "' ORDER BY numingenre"
     cgl=dbaction(1, query)
     return cgl
 
@@ -80,13 +88,10 @@ def buttoms (callback):
     # Просмотр списка книг
     if callback.data == 'watch':
         books = bookslist()
-        bookslistprint=str()
-        for i in range(len(books)):
-            bookslistprint=bookslistprint + books[i][1] + '\n' + books[i][2] + '\n\n'
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
         markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
-        bot.send_message(callback.message.chat.id, 'Список: \n\n' + bookslistprint, reply_markup=markup)
+        bot.send_message(callback.message.chat.id, 'Список: \n\n' + books, reply_markup=markup)
 
     # Добавление книги 4: добавление жанра, запрос указания места в списке книг жанра.
     for i in range(len(genres)):

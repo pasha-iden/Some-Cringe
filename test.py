@@ -1,10 +1,10 @@
 import psycopg2
 
 
-a='Классическая художественная литература (зарубежная)'
-b=2
-query="SELECT * FROM books WHERE genre='" + a + "' AND numingenre>" + str(b-1)
-datas=0
+a='Классическая художественная литература (русская)'
+b='Классическая художественная литература (зарубежная)'
+query="SELECT * FROM genres"
+datas=[]
 try:
     connection = psycopg2.connect(
         host = "127.0.0.1",
@@ -17,7 +17,7 @@ try:
         cursor.execute(query)
         # WHERE genre='%s'""" % (a))
         connection.commit()
-        datas=cursor.fetchall()
+        d=cursor.fetchall()
 
 except Exception as _ex:
     print ('Error:', _ex)
@@ -25,7 +25,7 @@ finally:
     if connection:
         connection.close()
 
-
+datas=datas+d
 print(datas)
 
 # a=[3, 'a', 'b', 'c', 3]

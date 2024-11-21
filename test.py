@@ -1,6 +1,10 @@
 import psycopg2
 
-a='Экономика'
+
+a='Классическая художественная литература (зарубежная)'
+b=2
+query="SELECT * FROM books WHERE genre='" + a + "' AND numingenre>" + str(b-1)
+datas=0
 try:
     connection = psycopg2.connect(
         host = "127.0.0.1",
@@ -10,10 +14,10 @@ try:
     connection.autocommit = True
 
     with connection.cursor() as cursor:
-        cursor.execute("""SELECT MAX(id) FROM books""")
+        cursor.execute(query)
         # WHERE genre='%s'""" % (a))
         connection.commit()
-        maxid=cursor.fetchall()
+        datas=cursor.fetchall()
 
 except Exception as _ex:
     print ('Error:', _ex)
@@ -22,7 +26,7 @@ finally:
         connection.close()
 
 
-print(maxid[0][0])
+print(datas)
 
 # a=[3, 'a', 'b', 'c', 3]
 #

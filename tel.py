@@ -32,8 +32,7 @@ def bookslist():
     books=dbaction(1, '''SELECT * FROM books''')
     return books
 def chgenrelist(choisengenre):
-    choisengenre="'" + choisengenre + "'"
-    query='''SELECT * FROM books WHERE genre=''' + choisengenre
+    query="SELECT * FROM books WHERE genre='" + choisengenre + "'"
     cgl=dbaction(1, query)
     return cgl
 
@@ -43,7 +42,22 @@ def bookadding (infoaboutbook):
     query='''INSERT INTO books VALUES (''' + str(infoaboutbook[0]) + ", '" + infoaboutbook[1] + "', '" + infoaboutbook[2] + "', '" + infoaboutbook[3] + "', '" + str(infoaboutbook[4]) + "')"
     n=dbaction(0, query)
 def bookaddinginto (infoaboutbook):
-    pass
+
+    # определение списка книга, которые нужно сдвинуть в списке жанра
+    query = "SELECT id, numingenre FROM books WHERE genre='" + infoaboutbook[3] + "' AND numingenre>" + str(int(infoaboutbook[4])-1)
+    renuberingbooks = dbaction(1, query)
+
+    # сдвиг книг в жанре
+    for i in range(len(renuberingbooks)):
+        query = "UPDATE books SET numingenre =" + str(renuberingbooks[i][1]+1) + " WHERE id=" + str(renuberingbooks[i][0])
+        n = dbaction(0, query)
+
+    # добавление книги в список
+    i = dbaction(1, '''SELECT MAX(id) FROM books''')
+    query = '''INSERT INTO books VALUES (''' + str(i[0][0]+1) + ", '" + infoaboutbook[1] + "', '" + infoaboutbook[2] + "', '" + infoaboutbook[3] + "', '" + str(infoaboutbook[4]) + "')"
+    n = dbaction(0, query)
+
+
 
 
 genres = genreslist()
@@ -117,7 +131,8 @@ def accepting (message):
     bookforadd[4] = message.text
     if int(bookforadd[4]) > len(chgenrelist(bookforadd[3])):
         bookadding(bookforadd)
-    # else
+    else:
+        bookaddinginto(bookforadd)
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
     markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))

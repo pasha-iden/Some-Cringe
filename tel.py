@@ -47,10 +47,16 @@ def chgenrelist(choisengenre):
     cgl=dbaction(1, query)
     return cgl
 
-# INSERT функции (будут редактироваться)
+# INSERT функции
 def bookadding (infoaboutbook):
-    i = dbaction(1, '''SELECT MAX(id) FROM books''')
-    infoaboutbook[0]=i[0][0]+1
+    i = dbaction(1, '''SELECT MIN(id) FROM emptyids''')
+    if i[0][0] == None:
+        i = dbaction(1, '''SELECT MAX(id) FROM books''')
+        infoaboutbook[0] = i[0][0] + 1
+    else:
+        infoaboutbook[0] = i[0][0]
+        query = "DELETE FROM emptyids WHERE id=" + str(i[0][0])
+        n = dbaction(0, query)
     query='''INSERT INTO books VALUES (''' + str(infoaboutbook[0]) + ", '" + infoaboutbook[1] + "', '" + infoaboutbook[2] + "', '" + infoaboutbook[3] + "', '" + str(infoaboutbook[4]) + "')"
     n=dbaction(0, query)
 def bookaddinginto (infoaboutbook):
@@ -65,28 +71,38 @@ def bookaddinginto (infoaboutbook):
         n = dbaction(0, query)
 
     # добавление книги в список
-    i = dbaction(1, '''SELECT MAX(id) FROM books''')
-    query = '''INSERT INTO books VALUES (''' + str(i[0][0]+1) + ", '" + infoaboutbook[1] + "', '" + infoaboutbook[2] + "', '" + infoaboutbook[3] + "', '" + str(infoaboutbook[4]) + "')"
+    i = dbaction(1, '''SELECT MIN(id) FROM emptyids''')
+    if i[0][0] == None:
+        i = dbaction(1, '''SELECT MAX(id) FROM books''')
+        infoaboutbook[0] = i[0][0] + 1
+    else:
+        infoaboutbook[0] = i[0][0]
+        query = "DELETE FROM emptyids WHERE id=" + str(i[0][0])
+        n = dbaction(0, query)
+    i = dbaction(0, '''SELECT MAX(id) FROM books''')
+    query = '''INSERT INTO books VALUES (''' + str(infoaboutbook[0]) + ", '" + infoaboutbook[1] + "', '" + infoaboutbook[2] + "', '" + infoaboutbook[3] + "', '" + str(infoaboutbook[4]) + "')"
     n = dbaction(0, query)
 
-# DELETE функция (в разработке)
+# DELETE функция
 def bookdelete (infoaboutbook):
-#     query = "SELECT id FROM books WHERE genre='" + infoaboutbook[3] + "' AND numingenre=" + str(infoaboutbook[4])
-#     newemptyid = dbaction(1, query)
-#     query = "INSERT INTO emptyids (id) VALUES (" + newemptyid + ")"
-#     n = dbaction(0, query)
-#     query = "DELETE FROM books WHERE genre='" + infoaboutbook[3] + "' AND numingenre=" + str(infoaboutbook[4])
-#     n = dbaction(0, query)
-#
-#     # определение списка книг, которые нужно сдвинуть в списке жанра
-#     query = "SELECT id, numingenre FROM books WHERE genre='" + infoaboutbook[3] + "' AND numingenre>" + str(int(infoaboutbook[4]) - 1)
-#     renuberingbooks = dbaction(1, query)
-#
-#     # сдвиг книг в жанре
-#     for i in range(len(renuberingbooks)):
-#         query = "UPDATE books SET numingenre =" + str(renuberingbooks[i][1]-1) + " WHERE id=" + str(renuberingbooks[i][0])
-#         n = dbaction(0, query)
-    pass
+    # сохранение номера освобождающейся ячейки, чтобы в будущем добавить книгу в нее
+    query = "SELECT id FROM books WHERE genre='" + infoaboutbook[3] + "' AND numingenre=" + str(infoaboutbook[4])
+    newemptyid = dbaction(1, query)
+    query = "INSERT INTO emptyids (id) VALUES (" + str(newemptyid[0][0]) + ")"
+    n = dbaction(0, query)
+
+    # удаление книги из списка книг
+    query = "DELETE FROM books WHERE genre='" + infoaboutbook[3] + "' AND numingenre=" + str(infoaboutbook[4])
+    n = dbaction(0, query)
+
+    # определение списка книг, которые нужно сдвинуть в списке жанра
+    query = "SELECT id, numingenre FROM books WHERE genre='" + infoaboutbook[3] + "' AND numingenre>" + str(int(infoaboutbook[4]) - 1)
+    renuberingbooks = dbaction(1, query)
+
+    # сдвиг книг в жанре
+    for i in range(len(renuberingbooks)):
+        query = "UPDATE books SET numingenre =" + str(renuberingbooks[i][1]-1) + " WHERE id=" + str(renuberingbooks[i][0])
+        n = dbaction(0, query)
 
 
 
@@ -111,7 +127,7 @@ def buttoms (callback):
         bot.register_next_step_handler(callback.message, adding_name)
 
     # Удаление книги 1: запрос указания жанра
-    if callback.data == 'deleting':
+    elif callback.data == 'deleting':
         genres = genreslist()
         markup = types.InlineKeyboardMarkup()
         for i in range(len(genres)):
@@ -125,7 +141,7 @@ def buttoms (callback):
         actualact[0] = 'deleting'
 
     # Просмотр списка книг
-    if callback.data == 'watch':
+    elif callback.data == 'watch':
         books = bookslist()
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
@@ -133,7 +149,7 @@ def buttoms (callback):
         bot.send_message(callback.message.chat.id, 'Список: \n\n' + books, reply_markup=markup)
 
     # Добавление книги 4: добавление жанра, запрос указания места в списке книг жанра.
-    if actualact[0] == 'adding':
+    elif actualact[0] == 'adding':
         actualact[0] = None
         genres = genreslist()
         for i in range(len(genres)):
@@ -155,8 +171,7 @@ def buttoms (callback):
                     bot.register_next_step_handler(callback.message, accepting)
 
     # Удаление книги 2: проверка на пустоту жанра, добавление жанра, запрос указания номера книги в жанре
-    if actualact[0] == 'deleting':
-        print (1)
+    elif actualact[0] == 'deleting':
         actualact[0] = None
         genres = genreslist()
         # !!! Что-то ломается здесь! <---------------------------------------------------------
@@ -213,7 +228,7 @@ def accepting (message):
 # Удаление книги 3: указание удаляемой книги, отчет о завершении удаления. Выбор дальнейшего действия.
 def enddeleting (message):
     bookforadd[4] = message.text
-    # bookdelete(bookforadd)
+    bookdelete(bookforadd)
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
     markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))

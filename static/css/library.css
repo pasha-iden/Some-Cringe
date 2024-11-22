@@ -16,5 +16,18 @@ padding-left: 350px;
 
 .list {
 padding-top: 15px;
-padding-left: 350px;
+display: grid;
+grid-template-columns: 30% 70%;
+}
+
+.genre {
+text-align: right;
+}
+
+.book {
+
+}
+
+.downside {
+padding-top: 150px;
 }

@@ -105,7 +105,6 @@ def bookdelete (infoaboutbook):
         n = dbaction(0, query)
 
 
-
 # genres = genreslist()
 bookforadd=[0, 0, 0, 0, 0]
 actualact=[None]

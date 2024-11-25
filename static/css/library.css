@@ -49,3 +49,22 @@ color: #595959;
 .downside {
 padding-top: 150px;
 }
+
+@media (max-width: 600px) {
+
+    .title {
+    font-size: 29px;
+    }
+
+    .underline {
+    font-size: 11px;
+    line-height: 17px;
+    }
+
+    .list {
+    padding-top: 29px;
+    font-size: 11px;
+    line-height: 17px;
+    }
+
+}

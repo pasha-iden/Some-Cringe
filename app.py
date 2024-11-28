@@ -52,4 +52,4 @@ def index ():
     return render_template("library.html", bookslistprint=books)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True) # на деплое должно быть (debug=False, host='0.0.0.0', port=1001)

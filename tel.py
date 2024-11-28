@@ -12,7 +12,8 @@ def dbaction(selection, query):
             host="127.0.0.1",
             user="postgres",
             password="postgres",
-            database="postgres")
+            database="postgres",
+            port=5432)
         connection.autocommit = True
 
         with connection.cursor() as cursor:
@@ -40,7 +41,6 @@ def bookslist():
             books=books + gl[i][1] + ': \n\n'
             for l in range(len(gbl)):
                 books=books + gbl[l][1] + '\n' + gbl[l][2] + '\n\n'
-    # books=dbaction(1, '''SELECT * FROM books''')
     return books
 def chgenrelist(choisengenre):
     query="SELECT * FROM books WHERE genre='" + choisengenre + "' ORDER BY numingenre"
@@ -52,7 +52,10 @@ def bookadding (infoaboutbook):
     i = dbaction(1, '''SELECT MIN(id) FROM emptyids''')
     if i[0][0] == None:
         i = dbaction(1, '''SELECT MAX(id) FROM books''')
-        infoaboutbook[0] = i[0][0] + 1
+        if i[0][0] == None:
+            infoaboutbook[0] = 1
+        else:
+            infoaboutbook[0] = i[0][0] + 1
     else:
         infoaboutbook[0] = i[0][0]
         query = "DELETE FROM emptyids WHERE id=" + str(i[0][0])
@@ -105,7 +108,6 @@ def bookdelete (infoaboutbook):
         n = dbaction(0, query)
 
 
-# genres = genreslist()
 bookforadd=[0, 0, 0, 0, 0]
 actualact=[None]
 
@@ -144,7 +146,7 @@ def buttoms (callback):
         books = bookslist()
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
-        markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
+        markup.add(types.InlineKeyboardButton('Перейти на сайт', url='http://92.118.114.135:1001/library'))
         bot.send_message(callback.message.chat.id, 'Список: \n\n' + books, reply_markup=markup)
 
     # Добавление книги 4: добавление жанра, запрос указания места в списке книг жанра.
@@ -160,7 +162,7 @@ def buttoms (callback):
                     bookadding(bookforadd)
                     markup = types.InlineKeyboardMarkup()
                     markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
-                    markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
+                    markup.add(types.InlineKeyboardButton('Перейти на сайт', url='http://92.118.114.135:1001/library'))
                     bot.send_message(callback.message.chat.id, 'Книга добавлена: \n\n Книга: ' + bookforadd[1] + '\n Автор: ' + bookforadd[2] + '\n Жанр: ' + bookforadd[3] + '\n Место в списке: ' + str(bookforadd[4]), reply_markup=markup)
                 else:
                     bl=str()
@@ -173,7 +175,6 @@ def buttoms (callback):
     elif actualact[0] == 'deleting':
         actualact[0] = None
         genres = genreslist()
-        # !!! Что-то ломается здесь! <---------------------------------------------------------
         for i in range(len(genres)):
             if callback.data == genres[i][2]:
                 bookforadd[3] = genres[i][1]
@@ -181,7 +182,7 @@ def buttoms (callback):
                 if choisengenrebooks==[]:
                     markup = types.InlineKeyboardMarkup()
                     markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
-                    markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
+                    markup.add(types.InlineKeyboardButton('Перейти на сайт', url='http://92.118.114.135:1001/library'))
                     bot.send_message(callback.message.chat.id, 'Жанр ' + bookforadd[3] + ' - пуст.', reply_markup=markup)
                 else:
                     bl = str()
@@ -221,7 +222,7 @@ def accepting (message):
         bookaddinginto(bookforadd)
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
-    markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
+    markup.add(types.InlineKeyboardButton('Перейти на сайт', url='http://92.118.114.135:1001/library'))
     bot.send_message(message.chat.id, 'Книга добавлена: \n\n Книга: ' + bookforadd[1] + '\n Автор: ' + bookforadd[2] + '\n Жанр: ' + bookforadd[3] + '\n Место в списке: ' + str(bookforadd[4]), reply_markup=markup)
 
 # Удаление книги 3: указание удаляемой книги, отчет о завершении удаления. Выбор дальнейшего действия.
@@ -230,7 +231,7 @@ def enddeleting (message):
     bookdelete(bookforadd)
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton('Посмотреть весь список', callback_data='watch'))
-    markup.add(types.InlineKeyboardButton('Перейти на сайт', url='https://pashaiden.tilda.ws/biblioteka'))
+    markup.add(types.InlineKeyboardButton('Перейти на сайт', url='http://92.118.114.135:1001/library'))
     bot.send_message(message.chat.id, 'Книга удалена.', reply_markup=markup)
 
 
